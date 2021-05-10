@@ -18,7 +18,7 @@ var (
 	}
 	worldMapFlag = cli.StringFlag{
 		Name:        "world-map",
-		Usage:       "World map file path",
+		Usage:       "File path of World map",
 		Value:       "",
 		Required:    true,
 	}
@@ -49,7 +49,7 @@ func invadeWorld(ctx *cli.Context) error {
 	fp := ctx.String(worldMapFlag.Name)
 
 	alienCount := ctx.Int(alienCountFlag.Name)
-	log.Println("alien to be spawned", alienCount)
+	log.Println("Aliens to be spawned", alienCount)
 
 	invasion := invasion.NewGame()
 
@@ -62,6 +62,7 @@ func invadeWorld(ctx *cli.Context) error {
 	log.Println("Starting game")
 	invasion.Start()
 
+	// print the final state of the cities.
 	invasion.PrintState()
 
 	return nil

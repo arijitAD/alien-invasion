@@ -15,14 +15,14 @@ const totalMoves = 10000
 type Game struct {
 	cityMap  map[string]*city
 	alienMap map[string]*alien
-	fileChan chan string
+	fileCh   chan string
 }
 
 func NewGame() *Game {
 	return &Game{
 		cityMap:  make(map[string]*city),
 		alienMap: make(map[string]*alien),
-		fileChan: make(chan string, 1000),
+		fileCh:   make(chan string, 1000),
 	}
 }
 
@@ -31,10 +31,11 @@ func (g *Game) Init(path string, alienCount int) error {
 
 	// Read data from file.
 	wg.Go(func() error {
+		// Close the channel once the file is completely read.
 		defer func() {
-			close(g.fileChan)
+			close(g.fileCh)
 		}()
-		return asyncLineReader(path, g.fileChan)
+		return asyncLineReader(path, g.fileCh)
 	})
 
 	// Process city values and store it in game.
@@ -87,8 +88,7 @@ func (g *Game) Start() {
 
 func (g *Game) PrintState() {
 	for _, ct := range g.cityMap {
-		var msg []string
-		msg = append(msg, ct.name)
+		msg := []string{ct.name}
 		if ct.north != nil {
 			msg = append(msg, fmt.Sprintf("north=%s", ct.north))
 		}
@@ -100,6 +100,11 @@ func (g *Game) PrintState() {
 		}
 		if ct.east != nil {
 			msg = append(msg, fmt.Sprintf("east=%s", ct.east))
+		}
+
+		// only print the cities which has neighbours to avoid redundancy.
+		if len(msg) == 1 {
+			continue
 		}
 
 		log.Println(strings.Join(msg, " "))
@@ -130,18 +135,20 @@ func (g *Game) assignAliens(alienCount int) {
 }
 
 func (g *Game) processCity() error {
-	for v := range g.fileChan {
+	for v := range g.fileCh {
 		if v == "" {
 			continue
 		}
 
 		tokens := strings.Split(v, " ")
-		city := g.getOrCreateCity(tokens[0])
+		cityName := g.getOrCreateCity(tokens[0])
 
+		// If the city doesn't have any neighbour.
 		if len(tokens) == 1 {
 			continue
 		}
 
+		// Traverse the neighbouring cities.
 		for _, token := range tokens[1:] {
 			neighbourCity := strings.Split(token, "=")
 			if len(neighbourCity) != 2 {
@@ -153,15 +160,15 @@ func (g *Game) processCity() error {
 				return fmt.Errorf("invalid direction %s", neighbourCity[0])
 			}
 
-			g.setNeighbourCity(city, direction, neighbourCity[1])
+			g.setNeighbourCity(cityName, direction, neighbourCity[1])
 		}
 	}
 	return nil
 }
 
 func (g *Game) getOrCreateCity(cityName string) *city {
-	if city, ok := g.cityMap[cityName]; ok {
-		return city
+	if ct, ok := g.cityMap[cityName]; ok {
+		return ct
 	}
 
 	newCity := &city{name: cityName}
@@ -170,44 +177,25 @@ func (g *Game) getOrCreateCity(cityName string) *city {
 }
 
 func (g *Game) setNeighbourCity(c *city, d Direction, cityName string) {
+	// This assumes path from a -> b is unidirectional.
 	switch d {
 	case North:
 		ct := g.getOrCreateCity(cityName)
 		c.north = ct
-		ct.south = c
 	case South:
 		ct := g.getOrCreateCity(cityName)
 		c.south = ct
-		ct.north = c
 	case West:
 		ct := g.getOrCreateCity(cityName)
 		c.west = ct
-		ct.east = c
 	case East:
 		ct := g.getOrCreateCity(cityName)
 		c.east = ct
-		ct.west = c
 	}
 }
 
 func (g *Game) fightAliens(city *city, alien1, alien2 *alien) {
 	log.Printf("%s has been destroyed by alien %s and %s \n", city, alien1, alien2)
-
-	if city.east != nil {
-		city.east.west = nil
-	}
-
-	if city.north != nil {
-		city.north.south = nil
-	}
-
-	if city.west != nil {
-		city.west.east = nil
-	}
-
-	if city.south != nil {
-		city.south.north = nil
-	}
 
 	delete(g.cityMap, city.name)
 	delete(g.alienMap, alien1.name)

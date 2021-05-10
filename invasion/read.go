@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 )
 
+// asyncLineReader reads each line from a file and write to a channel.
 func asyncLineReader(path string, lineCh chan string) error {
 	curr, err := os.Getwd()
 	if err != nil {
