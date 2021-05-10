@@ -127,12 +127,11 @@ func (g *Game) assignAliens(alienCount int) {
 	rand.Seed(time.Now().UnixNano())
 	rand.Shuffle(len(cities), func(i, j int) { cities[i], cities[j] = cities[j], cities[i] })
 
-	var idx int
 	for _, alien := range g.alienMap {
-		alien.city = cities[idx]
-		cities[idx].alien = alien
-		log.Printf("alien %s started in city %s", alien,  cities[idx])
-		idx++
+		alien.city = cities[0]
+		cities[0].alien = alien
+		log.Printf("alien %s started in city %s", alien,  cities[0])
+		cities = cities[1:]
 	}
 }
 
