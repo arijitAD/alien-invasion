@@ -136,17 +136,13 @@ func (g *Game) assignAliens(alienCount int) {
 
 func (g *Game) processCity() error {
 	for v := range g.fileCh {
+		// avoid empty lines.
 		if v == "" {
 			continue
 		}
 
 		tokens := strings.Split(v, " ")
 		cityName := g.getOrCreateCity(tokens[0])
-
-		// If the city doesn't have any neighbour.
-		if len(tokens) == 1 {
-			continue
-		}
 
 		// Traverse the neighbouring cities.
 		for _, token := range tokens[1:] {
