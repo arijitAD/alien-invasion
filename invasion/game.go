@@ -123,7 +123,7 @@ func (g *Game) assignAliens(alienCount int) {
 		cities = append(cities, city)
 	}
 
-	// Random Shuffle the cities and assign a city to each alien.
+	// shuffle the cities and assign a city to each alien.
 	rand.Seed(time.Now().UnixNano())
 	rand.Shuffle(len(cities), func(i, j int) { cities[i], cities[j] = cities[j], cities[i] })
 
