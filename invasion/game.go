@@ -115,7 +115,7 @@ func (g *Game) assignAliens(alienCount int) {
 	g.alienMap = generateAliens(alienCount)
 
 	// Select `alienCount` number of cities.
-	var cities []*city
+	cities := make([]*city, 0, alienCount)
 	for _, city := range g.cityMap {
 		if len(cities) == alienCount {
 			break
