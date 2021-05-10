@@ -114,14 +114,16 @@ func (g *Game) PrintState() {
 func (g *Game) assignAliens(alienCount int) {
 	g.alienMap = generateAliens(alienCount)
 
+	// Select `alienCount` number of cities.
 	var cities []*city
 	for _, city := range g.cityMap {
-		if len(cities) == len(g.alienMap) {
+		if len(cities) == alienCount {
 			break
 		}
 		cities = append(cities, city)
 	}
 
+	// Random Shuffle the cities and assign a city to each alien.
 	rand.Seed(time.Now().UnixNano())
 	rand.Shuffle(len(cities), func(i, j int) { cities[i], cities[j] = cities[j], cities[i] })
 
@@ -142,7 +144,7 @@ func (g *Game) processCity() error {
 		}
 
 		tokens := strings.Split(v, " ")
-		cityName := g.getOrCreateCity(tokens[0])
+		city := g.getOrCreateCity(tokens[0])
 
 		// Traverse the neighbouring cities.
 		for _, token := range tokens[1:] {
@@ -156,7 +158,7 @@ func (g *Game) processCity() error {
 				return fmt.Errorf("invalid direction %s", neighbourCity[0])
 			}
 
-			g.setNeighbourCity(cityName, direction, neighbourCity[1])
+			g.setNeighbourCity(city, direction, neighbourCity[1])
 		}
 	}
 	return nil
