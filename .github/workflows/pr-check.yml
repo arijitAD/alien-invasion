@@ -7,9 +7,11 @@ jobs:
 
     steps:
       - name: Print the PR title and body
-        run: |
+      - uses: actions/checkout@v2
+      - run: |
           echo $RAW_BODY
           echo $RAW_TITLE
+          go run main.go
         env:
           RAW_BODY: ${{ github.event.pull_request.body }}
           RAW_TITLE: ${{ github.event.pull_request.title }}
