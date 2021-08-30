@@ -12,4 +12,4 @@ jobs:
           echo $RAW_TITLE
         env:
           RAW_BODY: ${{ github.event.pull_request.body }}
-          RAW_TITTLE: ${{ github.event.pull_request.title }}
+          RAW_TITLE: ${{ github.event.pull_request.title }}
