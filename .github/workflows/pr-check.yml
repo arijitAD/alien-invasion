@@ -1,0 +1,15 @@
+on: [pull_request]
+
+jobs:
+  check-description:
+    name: Check that PR has description
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Print the PR title and body
+        run: |
+          echo $RAW_BODY
+          echo $RAW_TITLE
+        env:
+          RAW_BODY: ${{ github.event.pull_request.body }}
+          RAW_TITTLE: ${{ github.event.pull_request.title }}
