@@ -6,8 +6,8 @@ import (
 )
 
 const (
-	title = "$RAW_TITLE"
-	body = "$RAW_BODY"
+	title = "RAW_TITLE"
+	body = "RAW_BODY"
 )
 
 func main() {
