@@ -6,9 +6,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Print the PR title and body
       - uses: actions/checkout@v2
-      - run: |
+      - name: Print the PR title and body
+        run: |
           echo $RAW_BODY
           echo $RAW_TITLE
           go run main.go
