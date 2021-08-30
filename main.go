@@ -1,4 +1,4 @@
-package alien_invasion
+package main
 
 import (
 	"fmt"
